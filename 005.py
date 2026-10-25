@@ -14,4 +14,4 @@ print("Accuracy:", accuracy_score(y_te, pred))
 print("Confusion Matrix:\n", confusion_matrix(y_te, pred))
 print("Report:\n", classification_report(y_te, pred))
 
-plot_tree(model, filled=True); plt.show()
+plot_tree(model, filled=True); plt.savefig("plot.png")

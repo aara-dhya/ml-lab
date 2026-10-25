@@ -15,4 +15,4 @@ print("MSE:", mean_squared_error(y_te, pred))
 print("R2 Score:", r2_score(y_te, pred))
 
 plt.scatter(y_te, pred)
-plt.xlabel("Actual"); plt.ylabel("Predicted"); plt.show()
+plt.xlabel("Actual"); plt.ylabel("Predicted"); plt.savefig("plot.png")

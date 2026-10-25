@@ -13,4 +13,4 @@ print("Silhouette Score:", silhouette_score(X, labels))
 
 plt.scatter(X[:, 0], X[:, 1], c=labels, cmap='viridis')
 plt.scatter(model.cluster_centers_[:, 0], model.cluster_centers_[:, 1], c='red', marker='X', s=200)
-plt.title("K-Means Clustering"); plt.show()
+plt.title("K-Means Clustering"); plt.savefig("plot.png")

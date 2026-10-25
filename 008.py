@@ -15,4 +15,4 @@ for i, (name, y) in enumerate(funcs.items(), 1):
     plt.plot(x, y)
     plt.title(name); plt.grid(True)
 
-plt.tight_layout(); plt.show()
+plt.tight_layout(); plt.savefig("plot.png")
