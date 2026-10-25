@@ -1,0 +1,519 @@
+================================================================================
+       MACHINE LEARNING PRACTICAL EXAM: COMPLETE CODE & VIVA MASTER FILE
+================================================================================
+
+--------------------------------------------------------------------------------
+UNIVERSAL VIVA QUESTIONS (ASKED IN ALMOST EVERY PRACTICAL)
+--------------------------------------------------------------------------------
+
+Q1: Why did you split the dataset into Train and Test sets?
+A: To evaluate how well the model generalizes to unseen data. If we test the 
+   model on the same data it was trained on, it will memorize the data 
+   (overfitting) and give a falsely high accuracy.
+
+Q2: What is the difference between fit(), transform(), and fit_transform()?
+A: - fit() calculates the parameters (like mean and standard deviation) from data.
+   - transform() applies those parameters to modify the data.
+   - fit_transform() does both in one step.
+
+Q3: Why did you write random_state=42?
+A: train_test_split shuffles data randomly before splitting. Setting random_state 
+   fixes the random seed so we get the exact same data split and accuracy every 
+   time we run the program.
+
+Q4: What is Overfitting and Underfitting?
+A: - Overfitting: The model learns the training data and its noise too well, 
+     resulting in high training accuracy but low test accuracy.
+   - Underfitting: The model is too simple to capture the underlying pattern, 
+     giving poor accuracy on both training and test data.
+
+
+================================================================================
+STATEMENT 1: DATA PREPROCESSING TECHNIQUES
+(Cleaning, Transformation, Feature Encoding, Feature Scaling, Dataset Prep)
+================================================================================
+
+--- PYTHON CODE ---
+
+import numpy as np
+import pandas as pd
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.model_selection import train_test_split
+
+df = pd.DataFrame({
+    'Age': [20, 30, np.nan, 40, 20],
+    'Sal': [2000, 3000, 4000, np.nan, 2000],
+    'City': ['A', 'B', 'A', 'B', 'A'],
+    'Buy': ['No', 'Yes', 'No', 'Yes', 'No']
+})
+
+# 1. Cleaning (Deduplication + Missing Value Imputation)
+df = df.drop_duplicates()
+df[['Age', 'Sal']] = df[['Age', 'Sal']].fillna(df[['Age', 'Sal']].mean())
+
+# 2. Transformation (Log Transform)
+df['Log_Sal'] = np.log(df['Sal'])
+
+# 3. Feature Encoding (Label Encoding & One-Hot Encoding)
+df['Buy'] = LabelEncoder().fit_transform(df['Buy'])
+df = pd.get_dummies(df, columns=['City'])
+
+# 4. Feature Scaling (Standardization)
+df[['Age', 'Sal']] = StandardScaler().fit_transform(df[['Age', 'Sal']])
+print("Processed Data:\n", df)
+
+# 5. Dataset Preparation (Train-Test Split)
+X, y = df.drop('Buy', axis=1), df['Buy']
+X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2)
+print("Train & Test Shapes:", X_tr.shape, X_te.shape)
+
+--- VIVA QUESTIONS & ANSWERS ---
+
+Q1: Why do we impute (fill) missing values instead of just deleting those rows?
+A: Deleting rows with missing values causes a loss of valuable data, especially 
+   in small datasets. Filling them with the mean, median, or mode preserves the 
+   dataset size.
+
+Q2: When should you use Mean vs. Median for filling missing values?
+A: Use Mean when the data is normally distributed, and Median when the data has 
+   outliers or is skewed, because the median is not affected by extreme values.
+
+Q3: What is the difference between Label Encoding and One-Hot Encoding?
+A: Label Encoding assigns integers (0, 1, 2) to categories and is used for 
+   ordinal data where order matters (e.g., Low, Medium, High). One-Hot Encoding 
+   creates separate binary columns (0 or 1) and is used for nominal data without 
+   order (e.g., City names), so the model doesn't assume one city is greater 
+   than another.
+
+Q4: What is the difference between Standardization (StandardScaler) and 
+    Normalization (MinMaxScaler)?
+A: Standardization scales features so they have a mean of 0 and a standard 
+   deviation of 1. Normalization scales all values into a fixed range between 
+   0 and 1.
+
+Q5: Why do we need Feature Scaling in Machine Learning?
+A: If one feature has huge numbers (like Salary) and another has small numbers 
+   (like Age), distance-based algorithms will give unfair importance to the 
+   larger numbers. Scaling puts all features on an equal footing.
+
+Q6: Why did you apply a Log Transformation?
+A: Log transformation compresses large values to reduce right-skewness and 
+   makes skewed data follow a more normal (bell-shaped) distribution.
+
+
+================================================================================
+STATEMENT 2: LINEAR REGRESSION (PREDICTING A CONTINUOUS TARGET VARIABLE)
+================================================================================
+
+--- PYTHON CODE ---
+
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_diabetes
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+
+X, y = load_diabetes(return_X_y=True)
+X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2, random_state=42)
+
+model = LinearRegression().fit(X_tr, y_tr)
+pred = model.predict(X_te)
+
+print("MAE:", mean_absolute_error(y_te, pred))
+print("MSE:", mean_squared_error(y_te, pred))
+print("R2 Score:", r2_score(y_te, pred))
+
+plt.scatter(y_te, pred)
+plt.xlabel("Actual"); plt.ylabel("Predicted"); plt.show()
+
+--- VIVA QUESTIONS & ANSWERS ---
+
+Q1: What is the difference between Regression and Classification?
+A: Regression predicts a continuous numerical value (e.g., house price, 
+   temperature, disease progression), whereas Classification predicts a discrete 
+   category or class label (e.g., Spam or Not Spam).
+
+Q2: What is the mathematical equation of Linear Regression?
+A: Y = b0 + b1*X1 + b2*X2 + ... + bn*Xn + e, where Y is the predicted target, 
+   b0 is the y-intercept, b1...bn are the feature coefficients (slopes), and e 
+   is the error term.
+
+Q3: How does Linear Regression find the "best-fit" line?
+A: Using the Ordinary Least Squares (OLS) method, which minimizes the sum of the 
+   squared differences (residuals) between the actual values and predicted line.
+
+Q4: What is the difference between MAE, MSE, and RMSE?
+A: - MAE (Mean Absolute Error): Average of absolute errors.
+   - MSE (Mean Squared Error): Squares errors before averaging, heavily 
+     penalizing large outliers.
+   - RMSE (Root Mean Squared Error): Square root of MSE, bringing the error back 
+     into the same unit as the target variable.
+
+Q5: What is the R2 (R-Squared) score?
+A: Also called the Coefficient of Determination, it measures how well the 
+   regression predictions approximate the real data points. A value of 1 
+   indicates a perfect fit, while 0 means the model performs no better than 
+   simply predicting the mean.
+
+
+================================================================================
+STATEMENT 3: LOGISTIC REGRESSION (BINARY / MULTICLASS CLASSIFICATION)
+================================================================================
+
+--- PYTHON CODE ---
+
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+X, y = load_iris(return_X_y=True)
+X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2, random_state=42)
+
+model = LogisticRegression(max_iter=200).fit(X_tr, y_tr)
+pred = model.predict(X_te)
+
+print("Accuracy:", accuracy_score(y_te, pred))
+print("Confusion Matrix:\n", confusion_matrix(y_te, pred))
+print("Report:\n", classification_report(y_te, pred))
+
+--- VIVA QUESTIONS & ANSWERS ---
+
+Q1: Why is it called "Regression" if it is used for Classification?
+A: Because under the hood, it calculates a linear regression equation first, and 
+   then passes that continuous output into a Sigmoid (Logistic) function to turn 
+   it into a probability between 0 and 1.
+
+Q2: How does the Sigmoid function work in Logistic Regression?
+A: The Sigmoid function S(z) = 1 / (1 + e^-z) maps any real number into a range 
+   between 0 and 1. By default, if the probability is >= 0.5, the point is 
+   classified as Class 1; if < 0.5, Class 0.
+
+Q3: How does Logistic Regression solve a Multiclass problem (like Iris)?
+A: Using the One-vs-Rest (OvR) strategy (training one binary classifier per 
+   class) or the Multinomial (Softmax) loss function, which calculates 
+   probabilities across all classes simultaneously.
+
+Q4: Why can't we use MSE as the loss function for Logistic Regression?
+A: Passing the Sigmoid function into MSE creates a non-convex curve with many 
+   local minima. Instead, Logistic Regression uses Log Loss (Binary 
+   Cross-Entropy), which is convex and guarantees finding the global minimum.
+
+Q5: What is a Confusion Matrix?
+A: A table that summarizes classification performance using four counts: 
+   True Positives (TP), True Negatives (TN), False Positives (FP - Type I Error), 
+   and False Negatives (FN - Type II Error).
+
+
+================================================================================
+STATEMENT 4: EMAIL SPAM CLASSIFICATION (NAIVE BAYES / RANDOM FOREST)
+================================================================================
+
+--- PYTHON CODE ---
+
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.metrics import accuracy_score, classification_report
+
+texts = ["Win free cash prize now", "Claim free lottery money", "Win free gift card",
+         "Meeting at 2pm tomorrow", "Send the project report", "Lunch with team today"]
+y = [1, 1, 1, 0, 0, 0] # 1 = Spam, 0 = Ham
+
+X = CountVectorizer().fit_transform(texts)
+X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.3, random_state=42)
+
+model = MultinomialNB().fit(X_tr, y_tr)
+pred = model.predict(X_te)
+
+print("Accuracy:", accuracy_score(y_te, pred))
+print("Report:\n", classification_report(y_te, pred, zero_division=0))
+
+--- VIVA QUESTIONS & ANSWERS ---
+
+Q1: What is Bayes' Theorem, and why is Naive Bayes called "Naive"?
+A: Bayes' Theorem calculates the conditional probability of an event based on 
+   prior knowledge: P(A|B) = [P(B|A) * P(A)] / P(B). It is called "Naive" 
+   because it assumes all features (every word in an email) are completely 
+   independent of each other.
+
+Q2: Why did you use CountVectorizer or TfidfVectorizer?
+A: Machine learning algorithms only understand numbers, not raw text. 
+   CountVectorizer converts text into a matrix of word counts (Bag-of-Words), 
+   while TfidfVectorizer weighs down common words ("the", "is") and gives higher 
+   weight to rare, meaningful words ("lottery", "urgent").
+
+Q3: Why specifically MultinomialNB instead of GaussianNB for spam filtering?
+A: MultinomialNB is designed for discrete frequency counts (like word counts in 
+   text), whereas GaussianNB is meant for continuous numerical features that 
+   follow a normal distribution.
+
+Q4: How does a Random Forest classifier work?
+A: It is an ensemble learning method based on Bagging. It builds multiple 
+   Decision Trees on random subsets of data and features, and takes the majority 
+   vote of all trees for the final classification, which reduces overfitting.
+
+Q5: For a Spam filter, which metric is more critical: Precision or Recall?
+A: Precision is more critical. A False Positive means an important legitimate 
+   email ("Ham") gets sent to the Spam folder, which is much worse for a user 
+   than letting one spam email slip into the inbox (False Negative).
+
+
+================================================================================
+STATEMENT 5: DECISION TREE CLASSIFICATION & EVALUATION
+================================================================================
+
+--- PYTHON CODE ---
+
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+X, y = load_iris(return_X_y=True)
+X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2, random_state=42)
+
+model = DecisionTreeClassifier(max_depth=3).fit(X_tr, y_tr)
+pred = model.predict(X_te)
+
+print("Accuracy:", accuracy_score(y_te, pred))
+print("Confusion Matrix:\n", confusion_matrix(y_te, pred))
+print("Report:\n", classification_report(y_te, pred))
+
+plot_tree(model, filled=True); plt.show()
+
+--- VIVA QUESTIONS & ANSWERS ---
+
+Q1: How does a Decision Tree decide which feature to split on?
+A: It evaluates all features and chooses the one that gives the highest 
+   Information Gain (or greatest reduction in impurity), meaning it best 
+   separates the classes into pure subgroups.
+
+Q2: What are Entropy and Gini Impurity?
+A: Both measure the disorder or "impurity" of a node.
+   - Gini Impurity (1 - sum(p_i^2)) ranges from 0 to 0.5 and is computationally 
+     faster because it doesn't use logarithms.
+   - Entropy (-sum(p_i * log2(p_i))) ranges from 0 to 1 and is used to calculate 
+     Information Gain. A value of 0 in either means the node is 100% pure.
+
+Q3: What is Pruning, and why did you set max_depth=3?
+A: Decision trees naturally grow until every leaf has 1 sample, which causes 
+   severe overfitting. Pruning removes unnecessary branches. Setting max_depth=3 
+   is Pre-pruning (early stopping), which stops the tree from growing too deep.
+
+Q4: Define Accuracy, Precision, Recall, and F1-Score.
+A: - Accuracy: Fraction of total predictions that were correct.
+   - Precision: Out of all predicted positives, how many are actually positive 
+     [TP / (TP + FP)].
+   - Recall: Out of all actual positives, how many did the model correctly 
+     identify [TP / (TP + FN)].
+   - F1-Score: The harmonic mean of Precision and Recall 
+     [2 * (Precision * Recall) / (Precision + Recall)].
+
+
+================================================================================
+STATEMENT 6: K-MEANS CLUSTERING & QUALITY EVALUATION
+================================================================================
+
+--- PYTHON CODE ---
+
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
+
+X, _ = load_iris(return_X_y=True)
+
+# 1. Fit K-Means
+model = KMeans(n_clusters=3, n_init=10, random_state=42)
+labels = model.fit_predict(X)
+
+# 2. Evaluate Quality
+print("WCSS (Inertia):", model.inertia_)
+print("Silhouette Score:", silhouette_score(X, labels))
+
+# 3. Plot Clusters and Centroids
+plt.scatter(X[:, 0], X[:, 1], c=labels, cmap='viridis')
+plt.scatter(model.cluster_centers_[:, 0], model.cluster_centers_[:, 1], c='red', marker='X', s=200)
+plt.title("K-Means Clustering"); plt.show()
+
+--- VIVA QUESTIONS & ANSWERS ---
+
+Q1: What is the difference between Supervised and Unsupervised Learning?
+A: Supervised learning trains on labeled data where both input features (X) and 
+   target outputs (y) are known. Unsupervised learning (like K-Means) only gets 
+   unlabeled input data (X) and finds hidden patterns or groupings on its own.
+
+Q2: How does the K-Means algorithm work step-by-step?
+A: 1. Choose the number of clusters K and randomly initialize K centroids.
+   2. Assign every data point to its nearest centroid using Euclidean distance.
+   3. Recalculate each centroid by taking the mean of all points in that cluster.
+   4. Repeat steps 2 and 3 until the centroids stop moving (convergence).
+
+Q3: What is the difference between K-Means and KNN (K-Nearest Neighbors)?
+A: K-Means is an unsupervised clustering algorithm where K is the number of 
+   clusters. KNN is a supervised classification algorithm where K is the number 
+   of nearest neighboring points used to vote on a new point's class.
+
+Q4: How do you find the optimal value of K?
+A: Using the Elbow Method. We plot WCSS (Within-Cluster Sum of Squares / Inertia) 
+   against different values of K, and pick the K where the rate of decrease 
+   sharply bends like an elbow.
+
+Q5: What is the Silhouette Score?
+A: A metric used to evaluate clustering quality without true labels. It measures 
+   how similar a point is to its own cluster compared to other clusters. Its 
+   range is -1 to +1; a score close to +1 means clusters are dense and well 
+   separated.
+
+
+================================================================================
+STATEMENT 7: APRIORI ALGORITHM & OUTLIER DETECTION
+================================================================================
+
+--- PYTHON CODE ---
+
+import pandas as pd
+from mlxtend.frequent_patterns import apriori, association_rules
+
+# PART A: Apriori (1 = Item Bought, 0 = Not Bought)
+df = pd.DataFrame({
+    'Milk':  [1, 0, 1, 1, 1],
+    'Bread': [1, 1, 1, 1, 0],
+    'Eggs':  [0, 1, 1, 0, 1]
+}).astype(bool)
+
+freq = apriori(df, min_support=0.4, use_colnames=True)
+rules = association_rules(freq, metric="confidence", min_threshold=0.6)
+print("Frequent Itemsets:\n", freq)
+print("\nAssociation Rules:\n", rules[['antecedents', 'consequents', 'support', 'confidence', 'lift']])
+
+# PART B: Outlier Detection using IQR
+s = pd.Series([10, 12, 14, 15, 13, 100, -50])
+q1, q3 = s.quantile(0.25), s.quantile(0.75)
+iqr = q3 - q1
+outliers = s[(s < q1 - 1.5 * iqr) | (s > q3 + 1.5 * iqr)]
+print("\nOutliers:\n", outliers)
+
+--- VIVA QUESTIONS & ANSWERS ---
+
+Q1: What is the Apriori Algorithm used for?
+A: It is used for Market Basket Analysis to find frequent itemsets in 
+   transactional databases and generate association rules (e.g., "If a customer 
+   buys Bread and Butter, they are likely to buy Milk").
+
+Q2: State the Apriori Property.
+A: "All non-empty subsets of a frequent itemset must also be frequent." 
+   Conversely, if an itemset is infrequent, all of its supersets will also be 
+   infrequent and can be pruned immediately.
+
+Q3: Define Support, Confidence, and Lift.
+A: - Support: How popular an itemset is across all transactions 
+     [Transactions containing A / Total Transactions].
+   - Confidence: How likely item B is purchased when item A is purchased 
+     [Support(A U B) / Support(A)].
+   - Lift: Strength of a rule over random chance [Confidence(A->B) / Support(B)]. 
+     Lift > 1 means A and B are positively correlated; Lift = 1 means independent.
+
+Q4: What is an Outlier, and how does the IQR method detect it?
+A: An outlier is an extreme data point that differs significantly from other 
+   observations. The Interquartile Range is IQR = Q3 - Q1 (middle 50% of data). 
+   Any value < (Q1 - 1.5 * IQR) or > (Q3 + 1.5 * IQR) is flagged as an outlier.
+
+
+================================================================================
+STATEMENT 8: PLOTTING NEURAL NETWORK ACTIVATION FUNCTIONS
+================================================================================
+
+--- PYTHON CODE ---
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+x = np.linspace(-10, 10, 100)
+
+funcs = {
+    "Sigmoid": 1 / (1 + np.exp(-x)),
+    "Tanh": np.tanh(x),
+    "ReLU": np.maximum(0, x),
+    "Leaky ReLU": np.where(x > 0, x, 0.1 * x)
+}
+
+for i, (name, y) in enumerate(funcs.items(), 1):
+    plt.subplot(2, 2, i)
+    plt.plot(x, y)
+    plt.title(name); plt.grid(True)
+
+plt.tight_layout(); plt.show()
+
+--- VIVA QUESTIONS & ANSWERS ---
+
+Q1: Why do we need Activation Functions in a Neural Network?
+A: To introduce non-linearity into the network. Without an activation function, 
+   a neural network—no matter how many hidden layers it has—just computes a 
+   linear combination of inputs and behaves like simple Linear Regression.
+
+Q2: What is the difference between Sigmoid and Tanh?
+A: Sigmoid squashes outputs between 0 and 1 (used in the output layer for binary 
+   classification). Tanh squashes outputs between -1 and +1, making it 
+   zero-centered, which helps hidden layers converge faster than Sigmoid.
+
+Q3: What is the Vanishing Gradient Problem?
+A: In Sigmoid and Tanh, when inputs are very large or very small, the curve 
+   flattens out and the derivative (gradient) approaches 0. During 
+   backpropagation in deep networks, multiplying these tiny gradients causes 
+   weights in earlier layers to stop updating completely.
+
+Q4: Why is ReLU the most popular activation function for hidden layers?
+A: ReLU (max(0, x)) is computationally fast and does not saturate for positive 
+   values, which solves the vanishing gradient problem.
+
+Q5: What is the "Dying ReLU" problem, and how does Leaky ReLU fix it?
+A: If a neuron receives negative inputs in ReLU, its output and gradient become 
+   strictly 0, causing the neuron to "die" and never update its weights again. 
+   Leaky ReLU fixes this by giving negative inputs a small non-zero slope 
+   (e.g., 0.1 * x) instead of 0.
+
+
+================================================================================
+STATEMENT 9: McCULLOCH-PITTS NEURON FOR ANDNOT FUNCTION
+================================================================================
+
+--- PYTHON CODE ---
+
+print("X1 | X2 | Yin | Y (ANDNOT)")
+print("-" * 26)
+
+for x1 in [0, 1]:
+    for x2 in [0, 1]:
+        yin = (x1 * 1) + (x2 * -1)
+        y = 1 if yin >= 1 else 0
+        print(f" {x1} |  {x2} | {yin:3} |     {y}")
+
+--- VIVA QUESTIONS & ANSWERS ---
+
+Q1: What is the McCulloch-Pitts (MP) Neuron?
+A: Proposed in 1943 by Warren McCulloch and Walter Pitts, it is the earliest 
+   mathematical model of a biological neuron. It takes binary inputs (0 or 1), 
+   computes a weighted sum, and fires 1 if the sum meets or exceeds a threshold.
+
+Q2: What are Excitatory and Inhibitory inputs in an MP Neuron?
+A: Excitatory inputs have positive weights (+1) that help push the net input 
+   above the threshold. Inhibitory inputs have negative weights (-1) that 
+   suppress the neuron and prevent it from firing when active.
+
+Q3: How did you calculate the weights (w1=1, w2=-1) and threshold (theta=1) for 
+    the ANDNOT gate?
+A: ANDNOT (X1 AND NOT X2) must output 1 ONLY when X1 = 1 and X2 = 0.
+   - Since X1 activates the gate, it gets an excitatory weight w1 = 1.
+   - Since X2 must block the gate when it is 1, it gets an inhibitory weight w2 = -1.
+   - For (1, 0), net input Yin = 1(1) + 0(-1) = 1. All other input pairs give 0 
+     or -1. Therefore, setting threshold = 1 gives 1 only for (1, 0).
+
+Q4: What are the limitations of the McCulloch-Pitts Neuron?
+A: 1. It only accepts binary (0 and 1) inputs and outputs.
+   2. It has no automatic learning algorithm; weights and thresholds must be 
+      calculated manually by a human.
+   3. It cannot solve non-linearly separable problems like the XOR gate.
+================================================================================
