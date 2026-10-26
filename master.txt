@@ -521,3 +521,371 @@ A: 1. It only accepts binary (0 and 1) inputs and outputs.
       calculated manually by a human.
    3. It cannot solve non-linearly separable problems like the XOR gate.
 ================================================================================
+
+================================================================================
+     MACHINE LEARNING PRACTICAL EXAM: LINE-BY-LINE CODE EXPLANATION
+================================================================================
+
+--------------------------------------------------------------------------------
+STATEMENT 1: DATA PREPROCESSING TECHNIQUES
+--------------------------------------------------------------------------------
+
+1. import numpy as np
+   import pandas as pd
+   -> Imports NumPy for math operations (like creating NaN values and log 
+      transforms) and Pandas for creating and handling data tables (DataFrames).
+
+2. from sklearn.preprocessing import StandardScaler, LabelEncoder
+   from sklearn.model_selection import train_test_split
+   -> Imports StandardScaler for scaling numbers, LabelEncoder for converting 
+      text labels to numbers, and train_test_split for dividing data into 
+      training and testing sets.
+
+3. df = pd.DataFrame({
+       'Age': [20, 30, np.nan, 40, 20],
+       'Sal': [2000, 3000, 4000, np.nan, 2000],
+       'City': ['A', 'B', 'A', 'B', 'A'],
+       'Buy': ['No', 'Yes', 'No', 'Yes', 'No']
+   })
+   -> Creates a raw dataset with 5 rows and 4 columns that intentionally 
+      contains missing values (np.nan) and a duplicate row (first and last row).
+
+4. df = df.drop_duplicates()
+   -> [DATA CLEANING 1] Finds and removes the duplicate row so only unique 
+      records remain.
+
+5. df[['Age', 'Sal']] = df[['Age', 'Sal']].fillna(df[['Age', 'Sal']].mean())
+   -> [DATA CLEANING 2] Calculates the mean (average) of the Age and Salary 
+      columns and fills the missing NaN cells with those averages.
+
+6. df['Log_Sal'] = np.log(df['Sal'])
+   -> [DATA TRANSFORMATION] Applies a natural log transformation to Salary to 
+      compress large numbers and reduce skewness.
+
+7. df['Buy'] = LabelEncoder().fit_transform(df['Buy'])
+   -> [FEATURE ENCODING 1 - Label Encoding] Converts the target column 'Buy' 
+      from text ('No', 'Yes') into binary numbers (0 and 1).
+
+8. df = pd.get_dummies(df, columns=['City'])
+   -> [FEATURE ENCODING 2 - One-Hot Encoding] Converts the categorical 'City' 
+      column into separate binary columns (City_A and City_B) so the model 
+      doesn't assume an order between cities.
+
+9. df[['Age', 'Sal']] = StandardScaler().fit_transform(df[['Age', 'Sal']])
+   -> [FEATURE SCALING] Standardizes Age and Salary using Z-score scaling so 
+      both columns have a mean of 0 and a standard deviation of 1.
+
+10. print("Processed Data:\n", df)
+    -> Prints the cleaned, transformed, encoded, and scaled dataset.
+
+11. X, y = df.drop('Buy', axis=1), df['Buy']
+    -> [DATASET PREPARATION 1] Separates the table into input features 'X' 
+       (all columns except 'Buy') and target output 'y' (only the 'Buy' column).
+
+12. X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2)
+    -> [DATASET PREPARATION 2] Splits the dataset into 80% training data 
+       (X_tr, y_tr) and 20% testing data (X_te, y_te).
+
+13. print("Train & Test Shapes:", X_tr.shape, X_te.shape)
+    -> Prints the number of rows and columns in the training and testing sets.
+
+
+--------------------------------------------------------------------------------
+STATEMENT 2: LINEAR REGRESSION
+--------------------------------------------------------------------------------
+
+1. import matplotlib.pyplot as plt
+   from sklearn.datasets import load_diabetes
+   from sklearn.model_selection import train_test_split
+   from sklearn.linear_model import LinearRegression
+   from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+   -> Imports Matplotlib for plotting, the built-in Diabetes dataset, 
+      train_test_split, the LinearRegression algorithm, and the 3 regression 
+      evaluation metrics.
+
+2. X, y = load_diabetes(return_X_y=True)
+   -> Loads the real-world Diabetes dataset directly into input features 'X' 
+      (10 medical measurements) and continuous target variable 'y' (disease 
+      progression score).
+
+3. X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2, random_state=42)
+   -> Splits the data into 80% training and 20% testing. random_state=42 fixes 
+      the random seed so we get the exact same split every time we run the code.
+
+4. model = LinearRegression().fit(X_tr, y_tr)
+   -> Creates the Linear Regression model and trains (.fit) it on the training 
+      data (X_tr, y_tr) to find the best-fit line (weights and intercept).
+
+5. pred = model.predict(X_te)
+   -> Uses the trained model to predict continuous target values for the 
+      unseen test inputs (X_te).
+
+6. print("MAE:", mean_absolute_error(y_te, pred))
+   print("MSE:", mean_squared_error(y_te, pred))
+   print("R2 Score:", r2_score(y_te, pred))
+   -> Evaluates the model by comparing actual test values (y_te) with predicted 
+      values (pred) using Mean Absolute Error, Mean Squared Error, and R2 Score.
+
+7. plt.scatter(y_te, pred)
+   plt.xlabel("Actual"); plt.ylabel("Predicted"); plt.savefig("plot.png")
+   -> Plots a scatter graph of Actual vs. Predicted values, labels the X and Y 
+      axes, and saves the graph as "plot.png".
+
+
+--------------------------------------------------------------------------------
+STATEMENT 3: LOGISTIC REGRESSION
+--------------------------------------------------------------------------------
+
+1. from sklearn.datasets import load_iris
+   from sklearn.model_selection import train_test_split
+   from sklearn.linear_model import LogisticRegression
+   from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+   -> Imports the Iris dataset, train_test_split, the LogisticRegression 
+      classifier, and the 3 classification evaluation metrics.
+
+2. X, y = load_iris(return_X_y=True)
+   -> Loads the Iris flower dataset into input features 'X' (sepal and petal 
+      length/width) and target classes 'y' (3 flower species: 0, 1, and 2).
+
+3. X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2, random_state=42)
+   -> Divides the data into 80% for training and 20% for testing.
+
+4. model = LogisticRegression(max_iter=200).fit(X_tr, y_tr)
+   -> Creates the Logistic Regression model (setting max_iter=200 so the math 
+      optimizer has enough steps to converge) and trains it on the training set.
+
+5. pred = model.predict(X_te)
+   -> Predicts the class labels (0, 1, or 2) for the unseen test set X_te.
+
+6. print("Accuracy:", accuracy_score(y_te, pred))
+   print("Confusion Matrix:\n", confusion_matrix(y_te, pred))
+   print("Report:\n", classification_report(y_te, pred))
+   -> Prints overall Accuracy, the Confusion Matrix (showing correct vs. 
+      incorrect predictions per class), and the Classification Report 
+      (Precision, Recall, and F1-score).
+
+
+--------------------------------------------------------------------------------
+STATEMENT 4: EMAIL SPAM CLASSIFICATION (NAIVE BAYES)
+--------------------------------------------------------------------------------
+
+1. from sklearn.feature_extraction.text import CountVectorizer
+   from sklearn.model_selection import train_test_split
+   from sklearn.naive_bayes import MultinomialNB
+   from sklearn.metrics import accuracy_score, classification_report
+   -> Imports CountVectorizer to convert text into numbers, train_test_split, 
+      the Multinomial Naive Bayes algorithm, and evaluation metrics.
+
+2. texts = ["Win free cash prize now", "Claim free lottery money", "Win free gift card",
+            "Meeting at 2pm tomorrow", "Send the project report", "Lunch with team today"]
+   y = [1, 1, 1, 0, 0, 0] # 1 = Spam, 0 = Ham
+   -> Creates a dataset of 6 emails where the first 3 are Spam (labeled 1 in y) 
+      and the last 3 are normal Ham emails (labeled 0 in y).
+
+3. X = CountVectorizer().fit_transform(texts)
+   -> Converts the text sentences into a numerical matrix of word frequency 
+      counts (Bag-of-Words), because ML models cannot read raw text directly.
+
+4. X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.3, random_state=42)
+   -> Splits the vectorized emails into 70% training data and 30% testing data.
+
+5. model = MultinomialNB().fit(X_tr, y_tr)
+   -> Initializes the Multinomial Naive Bayes model (which works on Bayes' 
+      Theorem for word counts) and trains it on X_tr and y_tr.
+
+6. pred = model.predict(X_te)
+   -> Predicts whether the test emails are Spam (1) or Not Spam (0).
+
+7. print("Accuracy:", accuracy_score(y_te, pred))
+   print("Report:\n", classification_report(y_te, pred, zero_division=0))
+   -> Prints the accuracy and detailed precision/recall report (zero_division=0 
+      simply hides warnings caused by having a small sample dataset).
+
+
+--------------------------------------------------------------------------------
+STATEMENT 5: DECISION TREE CLASSIFICATION
+--------------------------------------------------------------------------------
+
+1. import matplotlib.pyplot as plt
+   from sklearn.datasets import load_iris
+   from sklearn.model_selection import train_test_split
+   from sklearn.tree import DecisionTreeClassifier, plot_tree
+   from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+   -> Imports Matplotlib, the Iris dataset, train_test_split, the 
+      DecisionTreeClassifier and plot_tree function, and classification metrics.
+
+2. X, y = load_iris(return_X_y=True)
+   X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2, random_state=42)
+   -> Loads the Iris dataset into X and y, and splits it 80% for training and 
+      20% for testing.
+
+3. model = DecisionTreeClassifier(max_depth=3).fit(X_tr, y_tr)
+   -> Creates a Decision Tree classifier (using Gini Impurity by default) with 
+      max_depth=3 to prevent the tree from growing too deep and overfitting, 
+      and trains it on the training data.
+
+4. pred = model.predict(X_te)
+   -> Uses the learned decision rules to predict classes for the test set X_te.
+
+5. print("Accuracy:", accuracy_score(y_te, pred))
+   print("Confusion Matrix:\n", confusion_matrix(y_te, pred))
+   print("Report:\n", classification_report(y_te, pred))
+   -> Evaluates the model by printing Accuracy, Confusion Matrix, and the full 
+      Classification Report (Precision, Recall, F1-score).
+
+6. plot_tree(model, filled=True); plt.savefig("plot.png")
+   -> Draws the visual Decision Tree flowchart (filled=True colors the boxes by 
+      majority class) and saves it to "plot.png".
+
+
+--------------------------------------------------------------------------------
+STATEMENT 6: K-MEANS CLUSTERING
+--------------------------------------------------------------------------------
+
+1. import matplotlib.pyplot as plt
+   from sklearn.datasets import load_iris
+   from sklearn.cluster import KMeans
+   from sklearn.metrics import silhouette_score
+   -> Imports Matplotlib, the Iris dataset, the KMeans clustering algorithm, 
+      and the Silhouette Score metric.
+
+2. X, _ = load_iris(return_X_y=True)
+   -> Loads only the input features 'X' and ignores the target labels '_' 
+      because K-Means is an unsupervised learning algorithm.
+
+3. model = KMeans(n_clusters=3, n_init=10, random_state=42)
+   -> Configures K-Means to group the data into 3 clusters (n_clusters=3) and 
+      run 10 times with different random starting centroids (n_init=10) to 
+      choose the best clustering result.
+
+4. labels = model.fit_predict(X)
+   -> Runs K-Means on 'X' and assigns every data point to a cluster (0, 1, or 2).
+
+5. print("WCSS (Inertia):", model.inertia_)
+   -> [QUALITY METRIC 1] Prints Within-Cluster Sum of Squares (Inertia), which 
+      measures how tightly packed points are around their centroids (lower is better).
+
+6. print("Silhouette Score:", silhouette_score(X, labels))
+   -> [QUALITY METRIC 2] Prints the Silhouette Score (ranges from -1 to +1), 
+      measuring how well-separated the clusters are (closer to +1 is better).
+
+7. plt.scatter(X[:, 0], X[:, 1], c=labels, cmap='viridis')
+   -> Plots a 2D scatter graph using the first two columns of X, coloring each 
+      point based on its assigned cluster label.
+
+8. plt.scatter(model.cluster_centers_[:, 0], model.cluster_centers_[:, 1], c='red', marker='X', s=200)
+   plt.title("K-Means Clustering"); plt.savefig("plot.png")
+   -> Plots the 3 cluster centers (centroids) as large red 'X' markers and 
+      saves the visualization as "plot.png".
+
+
+--------------------------------------------------------------------------------
+STATEMENT 7: APRIORI ALGORITHM & OUTLIER DETECTION
+--------------------------------------------------------------------------------
+
+1. import pandas as pd
+   from mlxtend.frequent_patterns import apriori, association_rules
+   -> Imports Pandas for tables, and the apriori and association_rules 
+      functions from the mlxtend library.
+
+2. df = pd.DataFrame({
+       'Milk':  [1, 0, 1, 1, 1],
+       'Bread': [1, 1, 1, 1, 0],
+       'Eggs':  [0, 1, 1, 0, 1]
+   }).astype(bool)
+   -> Creates a supermarket transaction dataset with 5 bills and 3 items, 
+      converting 1 and 0 into True (bought) and False (not bought).
+
+3. freq = apriori(df, min_support=0.4, use_colnames=True)
+   -> Runs the Apriori algorithm to discover Frequent Itemsets that appear in 
+      at least 40% (min_support=0.4) of transactions, using column names 
+      instead of column numbers.
+
+4. rules = association_rules(freq, metric="confidence", min_threshold=0.6)
+   -> Generates "If-Then" Association Rules from the frequent itemsets that 
+      have at least 60% (0.6) confidence.
+
+5. print("Frequent Itemsets:\n", freq)
+   print("\nAssociation Rules:\n", rules[['antecedents', 'consequents', 'support', 'confidence', 'lift']])
+   -> Prints the frequent itemsets table and the key rule metrics: antecedents 
+      (IF bought), consequents (THEN bought), support, confidence, and lift.
+
+6. s = pd.Series([10, 12, 14, 15, 13, 100, -50])
+   -> [OUTLIER DETECTION] Creates a numerical data series containing normal 
+      values (10 to 15) and two extreme outliers (100 and -50).
+
+7. q1, q3 = s.quantile(0.25), s.quantile(0.75)
+   iqr = q3 - q1
+   -> Calculates the 25th percentile (Q1), the 75th percentile (Q3), and the 
+      Interquartile Range (IQR = Q3 - Q1).
+
+8. outliers = s[(s < q1 - 1.5 * iqr) | (s > q3 + 1.5 * iqr)]
+   print("\nOutliers:\n", outliers)
+   -> Filters and prints any value falling below (Q1 - 1.5*IQR) or above 
+      (Q3 + 1.5*IQR) as an outlier (which catches 100 and -50).
+
+
+--------------------------------------------------------------------------------
+STATEMENT 8: PLOTTING NEURAL NETWORK ACTIVATION FUNCTIONS
+--------------------------------------------------------------------------------
+
+1. import numpy as np
+   import matplotlib.pyplot as plt
+   -> Imports NumPy for mathematical arrays/functions and Matplotlib for plotting.
+
+2. x = np.linspace(-10, 10, 100)
+   -> Generates 100 evenly spaced input numbers from -10 to +10 for the X-axis.
+
+3. funcs = {
+       "Sigmoid": 1 / (1 + np.exp(-x)),
+       "Tanh": np.tanh(x),
+       "ReLU": np.maximum(0, x),
+       "Leaky ReLU": np.where(x > 0, x, 0.1 * x)
+   }
+   -> Creates a dictionary holding the name and mathematical formula for 4 
+      activation functions:
+      - Sigmoid: 1 / (1 + e^-x), squashes output between 0 and 1.
+      - Tanh: Hyperbolic tangent, squashes output between -1 and +1.
+      - ReLU: Outputs x if positive, or 0 if negative.
+      - Leaky ReLU: Outputs x if positive, or 0.1*x if negative (fixes Dying ReLU).
+
+4. for i, (name, y) in enumerate(funcs.items(), 1):
+       plt.subplot(2, 2, i)
+       plt.plot(x, y)
+       plt.title(name); plt.grid(True)
+   -> Loops through the 4 functions (with counter 'i' from 1 to 4), creates a 
+      2x2 grid of subplots, plots the curve (x vs y), adds the title, and 
+      enables the background grid.
+
+5. plt.tight_layout(); plt.savefig("plot.png")
+   -> Automatically adjusts spacing between the 4 graphs so labels don't overlap, 
+      and saves the image as "plot.png".
+
+
+--------------------------------------------------------------------------------
+STATEMENT 9: McCULLOCH-PITTS NEURON FOR ANDNOT FUNCTION
+--------------------------------------------------------------------------------
+
+1. print("X1 | X2 | Yin | Y (ANDNOT)")
+   print("-" * 26)
+   -> Prints the column headings and a horizontal separator line for the 
+      Truth Table.
+
+2. for x1 in [0, 1]:
+       for x2 in [0, 1]:
+   -> Uses two nested loops to generate all 4 binary input combinations for 
+      (x1, x2): (0,0), (0,1), (1,0), and (1,1).
+
+3. yin = (x1 * 1) + (x2 * -1)
+   -> Calculates the Net Input (Yin) by multiplying x1 with excitatory weight 
+      w1 = +1 and x2 with inhibitory weight w2 = -1 (since ANDNOT means 
+      X1 AND NOT X2).
+
+4. y = 1 if yin >= 1 else 0
+   -> Applies the McCulloch-Pitts step activation function with threshold = 1: 
+      if net input Yin is 1 or greater, the neuron fires 1; otherwise it outputs 0.
+
+5. print(f" {x1} |  {x2} | {yin:3} |     {y}")
+   -> Prints the inputs (x1, x2), calculated net input (Yin), and final binary 
+      output (y) for each row of the truth table.
+================================================================================
